@@ -2,14 +2,23 @@
 #include <fstream>
 #include <vector>
 #include <numeric>
+#include <chrono>
 using namespace std;
+using std::chrono::duration;
+using std::chrono::duration_cast;
+using std::chrono::high_resolution_clock;
+using std::chrono::milliseconds;
 int solveP1();
 int solveP2(long int weakness);
 int main()
 {
     long int n = solveP1();
+    auto t1 = high_resolution_clock::now();
     cout << "Part 1 Answer: " << n << endl;
     cout << "Part 2 Answer: " << solveP2(n) << endl;
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << ms_double.count() << "ms";
     return 0;
 }
 
@@ -68,6 +77,6 @@ int solveP2(long int weakness)
                 return smallest + largest;
         }
     }
-    
+
     return -1;
 }
