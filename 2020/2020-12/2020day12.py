@@ -52,4 +52,4 @@ if __name__ == '__main__':
         start1 = timer()
         ans = partOne(f)
         end1 = timer()
-        print(f"Part 1 Answer: {ans} ({end1-start1:.5f} ms)")
+        print(f"Part 1 Answer: {ans} ({(end1-start1)*1000:.5f} ms)")
