@@ -24,6 +24,7 @@ def calculatePolymer(instructions, template, count):
                 newCounter[(addChar, between[1])] = newCounter.get((addChar, between[1]), 0) + oldCount
                 charCounter[addChar] = charCounter.get(addChar, 0) + oldCount
         pairCounter = newCounter.copy()
+
     return max(charCounter.values())-min(charCounter.values())
 
 
