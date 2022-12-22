@@ -41,9 +41,56 @@ def partOne(f):
             j += 1
 
 
+class Direction:
+    R = (1, 0)
+    U = (0, 1)
+    L = (-1, 0)
+    D = (0, -1)
+
+    order = [R, U, L, D]
+
+
 
 def partTwo(f):
-    pass
+    inp = int(f.read().strip())
+    numbers = dict()
+    numbers[(0, 0)] = 1
+    # order = right 1, up 1, left 2, down 2, right 3, up 3, left 4
+    import time
+    position = [0, 0]
+    step_size = 1
+    while True:
+        for direction in Direction.order:
+            for _ in range(step_size):
+                position = [position[0] + direction[0], position[1] + direction[1]]
+
+                surroundings = [
+                    (0, 1),
+                    (0, -1),
+                    (1, 0),
+                    (-1, 0),
+                    (1, 1),
+                    (-1, -1),
+                    (1, -1),
+                    (-1, 1),
+                ]
+                val = 0
+                for offset in surroundings:
+                    s_point = (position[0] + offset[0], position[1] + offset[1])
+
+                    val += numbers.get(s_point, 0)
+                numbers[tuple(position)] = val
+
+                if val > inp:
+                    return val
+            if direction == Direction.U or direction == Direction.D:
+                step_size += 1
+
+
+
+
+
+
 
 
 if __name__ == '__main__':

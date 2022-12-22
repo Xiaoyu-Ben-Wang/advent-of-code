@@ -66,8 +66,27 @@ def partOne(f: TextIOWrapper):
     return total
 
 
-def inRange(n):
-    return n >= 0 and n <= 4000000
+def inRange(point):
+    MAX = 4000000
+
+    return point[0] >= 0 and point[1] >= 0 and point[0] <= MAX and point[1] <= MAX
+
+
+def getPointsOutsideRange(center, radius):
+    result = set()
+    dist = radius+1
+    for i in range(dist+1):
+        new_points = [
+            ((center[0]+i, center[1]+dist-i)),
+            ((center[0]+i, center[1]-(dist-i))),
+            ((center[0]-i, center[1]+dist-i)),
+            ((center[0]-i, center[1]-(dist-i))),
+        ]
+        for p in new_points:
+            if inRange(p):
+                result.add(p)
+
+    return result
 
 
 def partTwo(f: TextIOWrapper):
@@ -75,7 +94,7 @@ def partTwo(f: TextIOWrapper):
 
     PATTERN = r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)"
 
-    sensorDistances = dict()
+    sensorDistanceMap = dict()
     beacons = set()
 
     potential_spots = set()
@@ -83,40 +102,41 @@ def partTwo(f: TextIOWrapper):
     for location in tqdm(locations):
         sensX, sensY, beaconX, beaconY = [int(s) for s in re.findall(PATTERN, location)[0]]
 
-        dist = getMhtnDist((sensX, sensY), (beaconX, beaconY))
-        sensorDistances[(sensX, sensY)] = dist
-        beacons.add((beaconX, beaconY))
+        sensor = (sensX, sensY)
+        beacon = (beaconX, beaconY)
+        radius = getMhtnDist(sensor, beacon)
+        beacons.add(beacon)
+        sensorDistanceMap[sensor] = radius
 
-        x, y = sensX, sensY
-        for xdiff in tqdm(range(dist+2)):
-            ydiff = dist+1-x
-            spots = [
-                (x+xdiff, y+ydiff),
-                (x+xdiff, y-ydiff),
-                (x-xdiff, y+ydiff),
-                (x-xdiff, y-ydiff),
-            ]
-            for spot in spots:
-                if not inRange(spot[0]) or not inRange(spot[1]):
-                    continue
+        for point in getPointsOutsideRange(sensor, radius):
+            if point in beacons:
+                continue
+            if not inRange(point):
+                continue
+            valid = True
+            for s, r in sensorDistanceMap.items():
+                if getMhtnDist(point, s) <= r:
+                    valid = False
+            if valid:
+                potential_spots.add(point)
 
-                add = True
-                for sensor, dist in sensorDistances.items():
-                    if getMhtnDist(spot, sensor) <= dist:
-                        add = False
-                        break
-                if add:
-                    potential_spots.add(spot)
+    ans = []
     for spot in tqdm(potential_spots):
-        if not inRange(spot[0]) or not inRange(spot[1]):
+        if spot in beacons:
             continue
-        found = True
-        for sensor, dist in sensorDistances.items():
-            if spot not in beacons and getMhtnDist(spot, sensor) <= dist:
-                found = False
-                break
-        if found:
-            return spot[0]*4000000+spot[1]
+        if not inRange(spot):
+            continue
+
+        valid = True
+        for sensor, radius in sensorDistanceMap.items():
+            if getMhtnDist(spot, sensor) <= radius:
+                valid = False
+
+        if valid:
+            ans.append(spot)
+
+    spot = ans[0]
+    return spot[0]*4000000+spot[1]
 
 
 if __name__ == '__main__':
